@@ -1,5 +1,4 @@
 import inspect
-import dse
 from time import time
 
 from django.contrib.contenttypes.models import ContentType
@@ -128,63 +127,63 @@ class MaatHandler(object):
             else:
                 logger.write('Flushing...\n')
             
-        dse.patch_models(specific_models=[MaatRanking])
         for typology, getter in self._typology_getters_iterator():
-
+            
             if logger:
                 logger.write(u'Handler: %s - Typology: %s\n' % (self, typology))
             
             if not simulate:
                 with transaction.commit_on_success():
                     # First, insert the new values, all set as not usable
-                    with MaatRanking.delayed as d:
-                        if logger:
-                            logger.write('Insert...')
-                            start = time()
-                        
-                        current_position = auto_increment(1)
-                        for object_id in getter():
-                            d.insert(dict(
-                                content_type_id=self._get_content_type().pk,
-                                object_id=object_id,
-                                typology=typology,
-                                usable=False,
-                                position=current_position.next()
-                            ))
-                        if logger:
-                            end = time()
-                            duration = end - start
-                            logger.write(' done (%.3f sec)\n' % duration)
+                    if logger:
+                        logger.write('Insert...')
+                        start = time()
+                    
+                    current_position = auto_increment(1)
+                    MaatRanking.objects.bulk_create(
+                        [MaatRanking(dict(
+                            content_type_id=self._get_content_type().pk,
+                            object_id=object_id,
+                            typology=typology,
+                            usable=False,
+                            position=current_position.next()
+                        )) for object_id in getter()]
+                    )
+                    
+                    if logger:
+                        end = time()
+                        duration = end - start
+                        logger.write(' done (%.3f sec)\n' % duration)
                     
                     # ...then delete the old values...
-                    with MaatRanking.delayed as d:
-                        if logger:
-                            logger.write('Delete...')
-                            start = time()
-                        for rank in MaatRanking.objects.filter(
-                            content_type=self._get_content_type(), 
-                            typology=typology,
-                            usable=True).values('id'):
-                            d.delete(int(rank.get('id')))
-                        if logger:
-                            end = time()
-                            duration = end - start
-                            logger.write(' done (%.3f sec)\n' % duration)
+                    if logger:
+                        logger.write('Delete...')
+                        start = time()
+                    
+                    MaatRanking.objects.filter(
+                        content_type=self._get_content_type(), 
+                        typology=typology,
+                        usable=True).delete()
+                    
+                    if logger:
+                        end = time()
+                        duration = end - start
+                        logger.write(' done (%.3f sec)\n' % duration)
                     
                     # ...and lastly update the inserted values as usable
-                    with MaatRanking.delayed as d:
-                        if logger:
-                            logger.write('Update...')
-                            start = time()
-                        for rank in MaatRanking.objects.filter(
-                            content_type=self._get_content_type(), 
-                            typology=typology,
-                            usable=False).values('id'):
-                            d.update(dict(id=rank.get('id'), usable=True))
-                        if logger:
-                            end = time()
-                            duration = end - start
-                            logger.write(' done (%.3f sec)\n' % duration)
+                    if logger:
+                        logger.write('Update...')
+                        start = time()
+                    
+                    MaatRanking.objects.filter(
+                        content_type=self._get_content_type(), 
+                        typology=typology,
+                        usable=False).update(usable=True)
+                    
+                    if logger:
+                        end = time()
+                        duration = end - start
+                        logger.write(' done (%.3f sec)\n' % duration)
     
     def ordered_by(self, typology):
         """

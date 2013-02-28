@@ -25,7 +25,4 @@ setup(
     version="%s.%s" % __import__(APP_NAME).VERSION[:2],
     packages=packages, 
     package_data={APP_NAME: data_files},
-    # install_requires=[
-    #     'dse',
-    # ],
 )
