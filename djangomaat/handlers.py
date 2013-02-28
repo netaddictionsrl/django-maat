@@ -141,7 +141,7 @@ class MaatHandler(object):
                     
                     current_position = auto_increment(1)
                     MaatRanking.objects.bulk_create(
-                        [MaatRanking(dict(
+                        [MaatRanking(**dict(
                             content_type_id=self._get_content_type().pk,
                             object_id=object_id,
                             typology=typology,
