@@ -140,15 +140,24 @@ class MaatHandler(object):
                         start = time()
                     
                     current_position = auto_increment(1)
-                    MaatRanking.objects.bulk_create(
-                        [MaatRanking(**dict(
-                            content_type_id=self._get_content_type().pk,
-                            object_id=object_id,
-                            typology=typology,
-                            usable=False,
-                            position=current_position.next()
-                        )) for object_id in getter()]
-                    )
+                    
+                    # TODO In Django 1.5 it should be sufficient to add
+                    # a `batch_size` argument to bulk_create.
+                    # For the time being, we do it manually.
+                    objects = [MaatRanking(**dict(
+                        content_type_id=self._get_content_type().pk,
+                        object_id=object_id,
+                        typology=typology,
+                        usable=False,
+                        position=current_position.next()
+                    )) for object_id in getter()]
+                    
+                    batch_size = 999
+                    
+                    for i in range(0, len(objects), batch_size):
+                        MaatRanking.objects.bulk_create(
+                            objects[i:i+batch_size]
+                        )
                     
                     if logger:
                         end = time()

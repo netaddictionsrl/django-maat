@@ -8,7 +8,7 @@ from .exceptions import *
 class TestMaatHandler(MaatHandler):
     
     def get_pk_list_for_typology1(self):
-        return [i[0] for i in TestModel.objects.order_by('name').values_list('pk')]
+        return TestModel.objects.order_by('name').values_list('pk', flat=True).iterator()
 
     def get_pk_list_for_typology2(self):
         return []
@@ -102,6 +102,20 @@ class ClientTest(unittest.TestCase):
         object5 = TestModel.objects.create(name='object5')
         self.h.flush_ordered_objects()
         expected = [object1, object2, object3, object4, object5]
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
+        expected.reverse()
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology1')), expected)
+        self.assertEqual(list(TestModel.maat.ordered_by('typology2')), [])
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology2')), [])
+        TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+    
+    def test_flush_and_retrieve_massive(self):
+        maat.register(TestModel, TestMaatHandler)
+        expected = []
+        for i in range(10000):
+            expected.append(TestModel.objects.create(name='object%05d' % i))
+        self.h.flush_ordered_objects()
         self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
         expected.reverse()
         self.assertEqual(list(TestModel.maat.ordered_by('-typology1')), expected)

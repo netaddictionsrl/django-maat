@@ -26,9 +26,9 @@ Sample usage:
     
         class ArticleMaatHanlder(MaatHandler):
             def get_pk_list_for_popularity(self):
-                return [i[0] for i in Article.objects.filter(
+                return Article.objects.filter(
                     popularity__content_type=ContentType.objects.get_for_model(Article),
-                ).order_by('-popularity__score').values_list('pk')[:1000]]
+                ).order_by('-popularity__score').values_list('pk', flat=True)[:1000].iterator()
     
         maat.register(Article, ArticleMaatHanlder)
 
