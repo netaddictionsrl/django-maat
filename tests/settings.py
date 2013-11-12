@@ -11,3 +11,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'djangomaat',
 )
+SECRET_KEY = 'sk'
+
+MAAT_FLUSH_BATCH_SIZE = 100 # To avoid sqlite issues

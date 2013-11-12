@@ -112,9 +112,8 @@ class ClientTest(unittest.TestCase):
     
     def test_flush_and_retrieve_massive(self):
         maat.register(TestModel, TestMaatHandler)
-        expected = []
-        for i in range(10000):
-            expected.append(TestModel.objects.create(name='object%05d' % i))
+        TestModel.objects.bulk_create((TestModel(name='object%05d' % i) for i in range(20000)), 250)
+        expected = list(TestModel.objects.all())
         self.h.flush_ordered_objects()
         self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
         expected.reverse()
