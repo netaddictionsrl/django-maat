@@ -52,4 +52,5 @@ You might want to schedule the command to be run at regular intervals.
 
 
 Requirements:
+
 - Django >= 1.5, <= 1.6
