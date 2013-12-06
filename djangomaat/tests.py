@@ -122,6 +122,6 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(list(TestModel.maat.ordered_by('-typology2')), [])
         # Avoid "too many sql variables"
         for i in range(0, 20000, 1000):
-            TestModel.objects.all()[i:i+1000].delete()
+            TestModel.objects.filter(id__lt=i).delete()
         
         maat.unregister(TestModel)
