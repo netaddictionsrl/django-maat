@@ -1,12 +1,17 @@
 import inspect
 from time import time
 
+try:
+    from django.db.transaction import atomic
+except ImportError:
+    from django.db.transaction import commit_on_success as atomic
+
 from django.contrib.contenttypes.models import ContentType
-from django.db import transaction
 
 from .models import MaatRanking
 from .exceptions import ManagerDoesNotExist, TypologyNotImplemented
 from .utils import auto_increment
+from .settings import FLUSH_BATCH_SIZE
 
 GETTER_PREFIX = 'get_pk_list_for_'
 
@@ -133,7 +138,7 @@ class MaatHandler(object):
                 logger.write(u'Handler: %s - Typology: %s\n' % (self, typology))
             
             if not simulate:
-                with transaction.commit_on_success():
+                with atomic():
                     # First, insert the new values, all set as not usable
                     if logger:
                         logger.write('Insert...')
@@ -141,24 +146,16 @@ class MaatHandler(object):
                     
                     current_position = auto_increment(1)
                     
-                    # TODO In Django 1.5 it should be sufficient to add
-                    # a `batch_size` argument to bulk_create.
-                    # For the time being, we do it manually.
-                    objects = [MaatRanking(**dict(
+                    objects = (MaatRanking(
                         content_type_id=self._get_content_type().pk,
                         object_id=object_id,
                         typology=typology,
                         usable=False,
                         position=current_position.next()
-                    )) for object_id in getter()]
+                    ) for object_id in getter())
                     
-                    batch_size = 999
-                    
-                    for i in range(0, len(objects), batch_size):
-                        MaatRanking.objects.bulk_create(
-                            objects[i:i+batch_size]
-                        )
-                    
+                    MaatRanking.objects.bulk_create(objects, FLUSH_BATCH_SIZE)
+
                     if logger:
                         end = time()
                         duration = end - start

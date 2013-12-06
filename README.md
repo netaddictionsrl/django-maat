@@ -49,3 +49,8 @@ Plus, run
     ./manage.py populate_maat_ranking --help
 for extra parameters.   
 You might want to schedule the command to be run at regular intervals.
+
+
+Requirements:
+
+- Django >= 1.5, <= 1.6
