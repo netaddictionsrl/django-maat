@@ -11,13 +11,13 @@ def get_handler_instance(model, handler_class, options):
         setattr(handler, key, value)
     return handler
 
-def contribute_to_class(model):
+def contribute_to_class(model, related_name=None):
     """
     Adds a 'maat_ranking' attribute to each instance of model.
     The attribute is a generic relation to MaatRanking, used by the
     handler to retrieve the ordered queryset.
     """
-    generic_relation = generic.GenericRelation(MaatRanking)
+    generic_relation = generic.GenericRelation(MaatRanking, related_name=related_name)
     generic_relation.contribute_to_class(model, 'maat_ranking')
 
 
@@ -68,7 +68,7 @@ class MaatRegister(object):
                     model._meta.module_name)
             handler = get_handler_instance(model, handler_class, kwargs)
             self._registry[model] = handler
-            contribute_to_class(model)
+            contribute_to_class(model, handler.related_name)
 
     def unregister(self, model_or_iterable):
         """ Do not use it. Just for testing, really. """

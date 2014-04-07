@@ -69,6 +69,8 @@ class MaatHandler(object):
     can be sliced, filtered etc. 
     """
     manager = '_default_manager'
+    related_name = None
+    use_concrete_model = True
     
     def __init__(self, model_class):
         self.model_class = model_class
@@ -117,7 +119,9 @@ class MaatHandler(object):
         attached to.
         """
         if not hasattr(self, '_content_type'):
-            self._content_type = ContentType.objects.get_for_model(self.model_class)
+            ct = ContentType.objects.get_for_model(self.model_class,
+                                                   self.use_concrete_model)
+            self._content_type = ct
         return self._content_type
     
     def flush_ordered_objects(self, logger=None, simulate=False):
