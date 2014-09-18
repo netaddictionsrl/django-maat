@@ -1,5 +1,10 @@
 from django.db.models.base import ModelBase
-from django.contrib.contenttypes import generic
+try:
+    from django.contrib.contenttypes.fields import GenericRelation
+except ImportError:
+    # Django < 1.7
+    from django.contrib.contenttypes.generic import GenericRelation
+
 
 from .exceptions import ModelNotRegistered, ModelAlreadyRegistered
 from .models import MaatRanking
@@ -17,7 +22,11 @@ def contribute_to_class(model, related_name=None):
     The attribute is a generic relation to MaatRanking, used by the
     handler to retrieve the ordered queryset.
     """
-    generic_relation = generic.GenericRelation(MaatRanking, related_name=related_name)
+    try:
+        generic_relation = GenericRelation(MaatRanking, related_query_name=related_name)
+    except TypeError:
+        # Django < 1.7
+        generic_relation = GenericRelation(MaatRanking, related_name=related_name)
     generic_relation.contribute_to_class(model, 'maat_ranking')
 
 

@@ -13,4 +13,6 @@ INSTALLED_APPS = (
 )
 SECRET_KEY = 'sk'
 
+MIDDLEWARE_CLASSES = ()
+
 MAAT_FLUSH_BATCH_SIZE = 100 # To avoid sqlite issues

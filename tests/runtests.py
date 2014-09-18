@@ -5,6 +5,12 @@ import sys
 sys.path.append('..')
 tmp = os.environ.get('DJANGO_SETTINGS_MODULE', '')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+try:
+    # Needed for django > 1.7
+    import django
+    django.setup()
+except AttributeError:
+    pass
 
 from django.test.simple import DjangoTestSuiteRunner
 

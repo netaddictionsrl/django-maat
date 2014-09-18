@@ -1,8 +1,13 @@
 from django.utils import unittest
 from django.db import models
-from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor
+try:
+    from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor
+except ImportError:
+    # Django < 1.7
+    from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor
+
 from .register import maat
-from .handlers import MaatHandler, HandlerDescriptor
+from .handlers import MaatHandler
 from .exceptions import *
 
 class TestMaatHandler(MaatHandler):
