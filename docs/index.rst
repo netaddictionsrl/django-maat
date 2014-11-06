@@ -35,7 +35,7 @@ Installation
 
 Install the ``django-maat`` package::
 
-    pip install -e git+https://github.com/GermanoGuerrini/django-maat
+    pip install django-maat
 
 Make sure ``django-maat`` is listed among your ``INSTALLED_APPS``:
 
