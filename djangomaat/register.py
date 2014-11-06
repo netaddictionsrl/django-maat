@@ -72,9 +72,13 @@ class MaatRegister(object):
             model_or_iterable = [model_or_iterable]
         for model in model_or_iterable:
             if model in self._registry:
+                try:
+                    model_name = model._meta.model_name
+                except AttributeError:
+                    # Django < 1.6
+                    model_name = model._meta.module_name
                 raise ModelAlreadyRegistered(
-                    "The model %s is already registered." % 
-                    model._meta.module_name)
+                    "The model %s is already registered." % model_name)
             handler = get_handler_instance(model, handler_class, kwargs)
             self._registry[model] = handler
             contribute_to_class(model, handler.related_name)

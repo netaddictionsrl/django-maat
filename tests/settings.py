@@ -11,6 +11,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'djangomaat',
 )
+
 SECRET_KEY = 'sk'
 
 MIDDLEWARE_CLASSES = ()
