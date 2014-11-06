@@ -33,17 +33,17 @@ Django  >= 1.5
 Installation
 ------------
 
-Install the ``django-maat`` package::
+Install the ``djangomaat`` package::
 
-    pip install django-maat
+    pip install djangomaat
 
-Make sure ``django-maat`` is listed among your ``INSTALLED_APPS``:
+Make sure ``djangomaat`` is listed among your ``INSTALLED_APPS``:
 
 .. code-block:: python
 
     INSTALLED_APPS = [
         # [...]
-        'django-maat',
+        'djangomaat',
     ]
 
 Run the ``syncdb`` command, or ``migrate`` if you are using Django 1.7::
@@ -105,7 +105,8 @@ its index::
 
 This will, as a matter of fact, denormalize the *current* order of the objects.
 
-Now you can finally retrieve your objects, for example in a Django view:
+Now you can finally retrieve your objects, for example in a Django view, using
+a ``maat`` handler that is automatically attached to the model class:
 
 .. code-block:: python
 
