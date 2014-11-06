@@ -30,6 +30,10 @@ class TestManager(models.Manager):
     pass
 
 
+class MockLogger(object):
+    def write(self, something):
+        pass
+
 class ClientTest(unittest.TestCase):
 
     def setUp(self):
@@ -129,4 +133,45 @@ class ClientTest(unittest.TestCase):
         for i in range(0, 21000, 100):
             TestModel.objects.filter(id__lt=i).delete()
         
+        maat.unregister(TestModel)
+
+    def test_simulated_flush_and_retrieve(self):
+        maat.register(TestModel, TestMaatHandler)
+        TestModel.objects.create(name='object1')
+        TestModel.objects.create(name='object2')
+        TestModel.objects.create(name='object3')
+        TestModel.objects.create(name='object4')
+        TestModel.objects.create(name='object5')
+        self.h.flush_ordered_objects(simulate=True)
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), [])
+        TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+
+    def test_logged_flush_and_retrieve(self):
+        maat.register(TestModel, TestMaatHandler)
+        object1 = TestModel.objects.create(name='object1')
+        object2 = TestModel.objects.create(name='object2')
+        object3 = TestModel.objects.create(name='object3')
+        object4 = TestModel.objects.create(name='object4')
+        object5 = TestModel.objects.create(name='object5')
+        self.h.flush_ordered_objects(logger=MockLogger())
+        expected = [object1, object2, object3, object4, object5]
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
+        expected.reverse()
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology1')), expected)
+        self.assertEqual(list(TestModel.maat.ordered_by('typology2')), [])
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology2')), [])
+        TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+
+    def test_simulated_and_logged_flush_and_retrieve(self):
+        maat.register(TestModel, TestMaatHandler)
+        TestModel.objects.create(name='object1')
+        TestModel.objects.create(name='object2')
+        TestModel.objects.create(name='object3')
+        TestModel.objects.create(name='object4')
+        TestModel.objects.create(name='object5')
+        self.h.flush_ordered_objects(logger=MockLogger(), simulate=True)
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), [])
+        TestModel.objects.all().delete()
         maat.unregister(TestModel)
