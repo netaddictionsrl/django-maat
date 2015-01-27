@@ -24,10 +24,19 @@ http://dev.mysql.com/doc/refman/5.0/en/order-by-optimization.html
 Requirements
 ------------
 
-======  ======
-Python  >= 2.6
-Django  >= 1.5
-======  ======
+========  ======
+Python 2  > 2.7
+Python 3  >= 3.2
+Django    >= 1.5
+========  ======
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+
+   changelog
 
 
 Installation
@@ -62,7 +71,7 @@ The suffix you will append to the name of the method will be used to retrieve th
 objects from the original model (more on this later).
 
 Each of these methods must return a list of pks (or an iterator, which is actually
-preferable) in the same order they are expected to be returned.  
+preferable) in the same order they are expected to be returned.
 Note that nothing forces you to returns the whole list of instances of the model.
 You can returns a subset if that is what you need.
 
@@ -70,14 +79,14 @@ You can returns a subset if that is what you need.
 
     from djangomaat.register import maat
     from djangomaat.handlers import MaatHandler
-    
+
     class ArticleMaatHanlder(MaatHandler):
-        
+
         def get_pk_list_for_comment_count(self):
             return Article.objects.filter(
                 thread__content_type=ContentType.objects.get_for_model(Article),
             ).order_by('-thread__comment_count').values_list('pk', flat=True)[:1000].iterator()
-        
+
         def get_pk_list_for_popularity(self):
             return Article.objects.filter(
                 popularity__content_type=ContentType.objects.get_for_model(Article),
@@ -92,10 +101,10 @@ the *most popular* articles (only the first thousand of them).
 After that, remember to register your handler as shown on the last line.
 
 .. note::
-   In Django 1.6 the preferred module for this code to live in is 
+   In Django 1.6 the preferred module for this code to live in is
    the ``models.py`` of your application, as it gets imported automatically.
-   
-   If you are using Django 1.7 you might want to use 
+
+   If you are using Django 1.7 you might want to use
    `AppConfig.ready() <https://docs.djangoproject.com/en/1.7/ref/applications/#django.apps.AppConfig.ready>`_ instead.
 
 Now that you are done defining your subclasses, you need to tell Maat to built
@@ -119,7 +128,7 @@ You can also retrieve them in inverted order:
     less_popular_article = Article.maat.ordered_by('-popularity')
     less_commented_article = Article.maat.ordered_by('-comment_count')
 
-**Important**: the order of the objects is *frozen* at the time you run ``populate_maat_ranking``.  
+**Important**: the order of the objects is *frozen* at the time you run ``populate_maat_ranking``.
 Depending on your requirements, you should schedule the command to run at regular intervals.
 
 If you need to have different intervals for different models, you can pass a list of ``app_label.model_name``::

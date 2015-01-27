@@ -1,9 +1,12 @@
+from __future__ import unicode_literals
+
 from optparse import make_option
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.db.models.loading import get_model
 
-from ...register import maat
+from djangomaat.register import maat
+
 
 class Command(BaseCommand):
     args = '[<app_label.model_name app_label.model_name ...>]'
@@ -23,7 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         simulate = options['simulate']
         verbosity = options['verbosity']
-        
+
         if verbosity > 0:
             logger = self.stdout
         else:

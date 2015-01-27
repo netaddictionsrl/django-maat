@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.db.models.base import ModelBase
 try:
     from django.contrib.contenttypes.fields import GenericRelation
@@ -36,7 +38,7 @@ class MaatRegister(object):
     """
     def __init__(self):
         self._registry = {}
-    
+
     def get_handler_for_model(self, model):
         """
         Returns an handler for the given *model*. If the model has not been
@@ -45,27 +47,27 @@ class MaatRegister(object):
         try:
             return self._registry[model]
         except KeyError:
-            raise ModelNotRegistered('Model %s is not handled' % model)
-    
+            raise ModelNotRegistered('Model {} is not handled'.format(model))
+
     def get_registered_handlers(self):
         """ Returns a list of all the registered handlers. """
-        return self._registry.values()
-    
+        return list(self._registry.values())
+
     def register(self, model_or_iterable, handler_class, **kwargs):
         """
         Registers a model or a list of models to be handled by *handler_class*.
         Once registered, a model gains a new attribute *maat* which can be
         used to retrieve an ordered queryset.
-        
+
         Eg:
-        
+
             from djangomaat.register import maat
-            
+
             maat.register(Article, ArticleMaatHandler)
-            
+
             ordered_article_list = Article.maat.ordered_by('popularity')
-        
-        Plus, the management command `populate_maat_ranking` will 
+
+        Plus, the management command `populate_maat_ranking` will
         automatically process the model.
         """
         if isinstance(model_or_iterable, ModelBase):
@@ -78,7 +80,7 @@ class MaatRegister(object):
                     # Django < 1.6
                     model_name = model._meta.module_name
                 raise ModelAlreadyRegistered(
-                    "The model %s is already registered." % model_name)
+                    "The model {} is already registered.".format(model_name))
             handler = get_handler_instance(model, handler_class, kwargs)
             self._registry[model] = handler
             contribute_to_class(model, handler.related_name)

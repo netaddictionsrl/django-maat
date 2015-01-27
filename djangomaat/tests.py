@@ -6,18 +6,18 @@ except ImportError:
     # Django < 1.7
     from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor
 
-from .register import maat
-from .handlers import MaatHandler
-from .exceptions import *
+from djangomaat.register import maat
+from djangomaat.handlers import MaatHandler
+from djangomaat.exceptions import *
 
 class TestMaatHandler(MaatHandler):
-    
+
     def get_pk_list_for_typology1(self):
         return TestModel.objects.order_by('name').values_list('pk', flat=True).iterator()
 
     def get_pk_list_for_typology2(self):
         return []
-        
+
 
 class TestModel(models.Model):
     name = models.CharField(max_length=8)
@@ -118,10 +118,10 @@ class ClientTest(unittest.TestCase):
         self.assertEqual(list(TestModel.maat.ordered_by('-typology2')), [])
         TestModel.objects.all().delete()
         maat.unregister(TestModel)
-    
+
     def test_flush_and_retrieve_massive(self):
         maat.register(TestModel, TestMaatHandler)
-        TestModel.objects.bulk_create((TestModel(name='object%05d' % i) for i in range(20000)), 250)
+        TestModel.objects.bulk_create((TestModel(name='object{:05d}'.format(i)) for i in range(20000)), 250)
         expected = list(TestModel.objects.all())
         self.h.flush_ordered_objects()
         self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
@@ -132,7 +132,7 @@ class ClientTest(unittest.TestCase):
         # Avoid "too many sql variables"
         for i in range(0, 21000, 100):
             TestModel.objects.filter(id__lt=i).delete()
-        
+
         maat.unregister(TestModel)
 
     def test_simulated_flush_and_retrieve(self):
