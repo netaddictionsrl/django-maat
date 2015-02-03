@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 1.3.1
+=============
+* Added migrations files for Django 1.7+
+
 Version 1.3
 ===========
 * Added support for Python >= 3.2
