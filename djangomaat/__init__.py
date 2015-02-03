@@ -2,7 +2,7 @@
 Application that optimizes large ordered data set retrieving when using MySql.
 """
 
-VERSION = (1, 3, 1)
+VERSION = (1, 4)
 
 
 def get_version():
