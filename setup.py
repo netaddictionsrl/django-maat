@@ -4,7 +4,7 @@ APP_NAME = 'djangomaat'
 
 setup(
     name=APP_NAME,
-    version="{0[0]}.{0[1]}".format(__import__(APP_NAME).VERSION[:2]),
+    version=".".join(map(str, __import__(APP_NAME).VERSION)),
     packages=find_packages(),
     include_package_data=True,
     description = 'Fast MySQL ordering',

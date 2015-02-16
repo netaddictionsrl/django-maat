@@ -9,11 +9,9 @@ except ImportError:
     from django.db.transaction import commit_on_success as atomic
 
 from django.contrib.contenttypes.models import ContentType
-from django.utils.six import next
 
 from djangomaat.models import MaatRanking
 from djangomaat.exceptions import ManagerDoesNotExist, TypologyNotImplemented
-from djangomaat.utils import auto_increment
 from djangomaat.settings import FLUSH_BATCH_SIZE
 
 GETTER_PREFIX = 'get_pk_list_for_'
@@ -134,7 +132,7 @@ class MaatHandler(object):
         attached to.
         This method gets called by the management command.
         """
-        if logger:
+        if logger is not None:
             if simulate:
                 logger.write('Simulating flushing...\n')
             else:
@@ -142,35 +140,33 @@ class MaatHandler(object):
 
         for typology, getter in self._typology_getters_iterator():
 
-            if logger:
+            if logger is not None:
                 logger.write('Handler: {} - Typology: {}\n'.format(self, typology))
 
             if not simulate:
                 with atomic():
                     # First, insert the new values, all set as not usable
-                    if logger:
+                    if logger is not None:
                         logger.write('Insert...')
                         start = time()
-
-                    current_position = auto_increment(1)
 
                     objects = (MaatRanking(
                         content_type_id=self._get_content_type().pk,
                         object_id=object_id,
                         typology=typology,
                         usable=False,
-                        position=next(current_position)
-                    ) for object_id in getter())
+                        position=index
+                    ) for index, object_id in enumerate(getter()))
 
                     MaatRanking.objects.bulk_create(objects, FLUSH_BATCH_SIZE)
 
-                    if logger:
+                    if logger is not None:
                         end = time()
                         duration = end - start
                         logger.write(' done ({:.3f} sec)\n'.format(duration))
 
                     # ...then delete the old values...
-                    if logger:
+                    if logger is not None:
                         logger.write('Delete...')
                         start = time()
 
@@ -179,13 +175,13 @@ class MaatHandler(object):
                         typology=typology,
                         usable=True).delete()
 
-                    if logger:
+                    if logger is not None:
                         end = time()
                         duration = end - start
                         logger.write(' done ({:.3f} sec)\n'.format(duration))
 
                     # ...and lastly update the inserted values as usable
-                    if logger:
+                    if logger is not None:
                         logger.write('Update...')
                         start = time()
 
@@ -194,7 +190,7 @@ class MaatHandler(object):
                         typology=typology,
                         usable=False).update(usable=True)
 
-                    if logger:
+                    if logger is not None:
                         end = time()
                         duration = end - start
                         logger.write(' done ({:.3f} sec)\n'.format(duration))
@@ -231,6 +227,6 @@ class HandlerDescriptor(object):
         self.handler = handler
 
     def __get__(self, instance, type=None):
-        if instance != None:
+        if instance is not None:
             raise AttributeError("Handler isn't accessible via {} instances".format(type.__name__))
         return self.handler

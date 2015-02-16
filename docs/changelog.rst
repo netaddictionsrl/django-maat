@@ -2,9 +2,15 @@
 Changelog
 =========
 
-Version 1.4
+Version 1.4.1
 =============
+* More idiomatic syntax
+
+
+Version 1.4
+===========
 * Added migrations files for Django 1.7+
+
 
 Version 1.3
 ===========
