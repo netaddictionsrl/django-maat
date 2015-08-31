@@ -1,4 +1,5 @@
-from django.utils import unittest
+import unittest
+
 from django.db import models
 try:
     from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor
