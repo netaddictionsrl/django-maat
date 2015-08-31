@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 1.4.2
+=============
+* Django 1.8 compatibility
+
+
 Version 1.4.1
 =============
 * More idiomatic syntax
