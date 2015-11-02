@@ -1,15 +1,18 @@
 import unittest
 
+from django.core.management import call_command
 from django.db import models
 try:
     from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor
 except ImportError:
     # Django < 1.7
     from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor
+from django.utils.six import StringIO
 
 from djangomaat.register import maat
 from djangomaat.handlers import MaatHandler
 from djangomaat.exceptions import *
+
 
 class TestMaatHandler(MaatHandler):
 
@@ -175,4 +178,85 @@ class ClientTest(unittest.TestCase):
         self.h.flush_ordered_objects(logger=MockLogger(), simulate=True)
         self.assertEqual(list(TestModel.maat.ordered_by('typology1')), [])
         TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+
+    def test_flush_and_retrieve_typology(self):
+        maat.register(TestModel, TestMaatHandler)
+        object1 = TestModel.objects.create(name='object1')
+        object2 = TestModel.objects.create(name='object2')
+        object3 = TestModel.objects.create(name='object3')
+        object4 = TestModel.objects.create(name='object4')
+        object5 = TestModel.objects.create(name='object5')
+        self.h.flush_ordered_objects('typology1')
+        expected = [object1, object2, object3, object4, object5]
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
+        expected.reverse()
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology1')), expected)
+        TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+
+    def test_flush_and_retrieve_typology_list(self):
+        maat.register(TestModel, TestMaatHandler)
+        object1 = TestModel.objects.create(name='object1')
+        object2 = TestModel.objects.create(name='object2')
+        object3 = TestModel.objects.create(name='object3')
+        object4 = TestModel.objects.create(name='object4')
+        object5 = TestModel.objects.create(name='object5')
+        self.h.flush_ordered_objects(['typology1', 'typology2'])
+        expected = [object1, object2, object3, object4, object5]
+        self.assertEqual(list(TestModel.maat.ordered_by('typology1')), expected)
+        expected.reverse()
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology1')), expected)
+        self.assertEqual(list(TestModel.maat.ordered_by('typology2')), [])
+        self.assertEqual(list(TestModel.maat.ordered_by('-typology2')), [])
+        TestModel.objects.all().delete()
+        maat.unregister(TestModel)
+
+    def test_flush_and_retrieve_typology_wrong(self):
+        maat.register(TestModel, TestMaatHandler)
+        self.assertRaises(
+            TypologyNotImplemented,
+            self.h.flush_ordered_objects,
+            'typology3'
+        )
+        maat.unregister(TestModel)
+
+    def test_command_output_no_handlers(self):
+        out = StringIO()
+        call_command('populate_maat_ranking', stdout=out, **{'verbosity': 1})
+        self.assertIn('No registered handlers found.', out.getvalue())
+
+    def test_command_output_automatic_handlers(self):
+        maat.register(TestModel, TestMaatHandler)
+        out = StringIO()
+        call_command('populate_maat_ranking', stdout=out, **{'verbosity': 1})
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology1', out.getvalue())
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology2', out.getvalue())
+        maat.unregister(TestModel)
+
+    def test_command_output_given_handlers(self):
+        maat.register(TestModel, TestMaatHandler)
+        out = StringIO()
+        args = ['djangomaat.testmodel']
+        call_command('populate_maat_ranking', stdout=out, *args, **{'verbosity': 1})
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology1', out.getvalue())
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology2', out.getvalue())
+        maat.unregister(TestModel)
+
+    def test_command_output_given_handlers_and_typology(self):
+        maat.register(TestModel, TestMaatHandler)
+        out = StringIO()
+        args = ['djangomaat.testmodel:typology1']
+        call_command('populate_maat_ranking', stdout=out, *args, **{'verbosity': 1})
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology1', out.getvalue())
+        self.assertNotIn('typology2', out.getvalue())
+        maat.unregister(TestModel)
+
+    def test_command_output_given_all_handlers_ad_typologies(self):
+        maat.register(TestModel, TestMaatHandler)
+        out = StringIO()
+        args = ['djangomaat.testmodel:typology1,typology2']
+        call_command('populate_maat_ranking', stdout=out, *args, **{'verbosity': 1})
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology1', out.getvalue())
+        self.assertIn('Handler: djangomaat.testmodel - Typology: typology2', out.getvalue())
         maat.unregister(TestModel)

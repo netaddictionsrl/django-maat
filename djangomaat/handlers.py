@@ -115,6 +115,11 @@ class MaatHandler(object):
             for k, v in inspect.getmembers(self, predicate=inspect.ismethod)
             if k.startswith(GETTER_PREFIX))
 
+    def _getters_iterator(self, typologies):
+        def getter_name(typology):
+            return '{}{}'.format(GETTER_PREFIX, typology)
+        return ((t, getattr(self, getter_name(t))) for t in typologies)
+
     def _get_content_type(self):
         """
         Caches and returns the content type of the model this handler is
@@ -126,19 +131,28 @@ class MaatHandler(object):
             self._content_type = ct
         return self._content_type
 
-    def flush_ordered_objects(self, logger=None, simulate=False):
+    def flush_ordered_objects(self, typologies=None, logger=None, simulate=False):
         """
         Replaces all the current rankings for the model this handler is
         attached to.
         This method gets called by the management command.
         """
+        if typologies is not None:
+            if not isinstance(typologies, (list, tuple)):
+                typologies = [typologies]
+            for typology in typologies:
+                self._validate_typology(typology)
+            iterator = self._getters_iterator(typologies)
+        else:
+            iterator = self._typology_getters_iterator()
+
         if logger is not None:
             if simulate:
                 logger.write('Simulating flushing...\n')
             else:
                 logger.write('Flushing...\n')
 
-        for typology, getter in self._typology_getters_iterator():
+        for typology, getter in iterator:
 
             if logger is not None:
                 logger.write('Handler: {} - Typology: {}\n'.format(self, typology))
