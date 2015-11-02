@@ -137,3 +137,10 @@ If you need to have different intervals for different models, you can pass a lis
     ./manage.py populate_maat_ranking my_app.article
 
 This will rebuild only the handler registered for that particular model.
+
+Moreover, you can rebuild only given sorting function with the following syntax:
+
+    ./manage.py populate_maat_ranking my_app.article:popularity,comment_count
+
+That is, add a comma separated values after a colon with the name of your sorting criteria.
+

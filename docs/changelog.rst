@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 1.5
+===========
+* Added a reacher custom command syntax
+
+
 Version 1.4.2
 =============
 * Django 1.8 compatibility
