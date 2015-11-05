@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 from optparse import make_option
-from string import strip
 
 from django.core.management.base import BaseCommand
 from django.db.models.loading import get_model
@@ -29,6 +28,7 @@ class Command(BaseCommand):
 
         Typologies are not mandatory unless a colon char is in the string.
         """
+        strip = lambda x:x.strip()
         bits = model.split(':')
         app_label, model_name = bits[0].split('.')
         typologies = None
