@@ -18,17 +18,17 @@ def get_handler_instance(model, handler_class, options):
         setattr(handler, key, value)
     return handler
 
-def contribute_to_class(model, related_name=None):
+def contribute_to_class(model):
     """
     Adds a 'maat_ranking' attribute to each instance of model.
     The attribute is a generic relation to MaatRanking, used by the
     handler to retrieve the ordered queryset.
     """
     try:
-        generic_relation = GenericRelation(MaatRanking, related_query_name=related_name)
+        generic_relation = GenericRelation(MaatRanking)
     except TypeError:
         # Django < 1.7
-        generic_relation = GenericRelation(MaatRanking, related_name=related_name)
+        generic_relation = GenericRelation(MaatRanking)
     generic_relation.contribute_to_class(model, 'maat_ranking')
 
 
@@ -83,7 +83,7 @@ class MaatRegister(object):
                     "The model {} is already registered.".format(model_name))
             handler = get_handler_instance(model, handler_class, kwargs)
             self._registry[model] = handler
-            contribute_to_class(model, handler.related_name)
+            contribute_to_class(model)
 
     def unregister(self, model_or_iterable):
         """ Do not use it. Just for testing, really. """

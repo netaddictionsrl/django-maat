@@ -71,7 +71,6 @@ class MaatHandler(object):
     can be sliced, filtered etc.
     """
     manager = '_default_manager'
-    related_name = None
     use_concrete_model = True
 
     def __init__(self, model_class):
