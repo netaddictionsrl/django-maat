@@ -9,4 +9,8 @@ python:
 install:
   - pip install tox-travis
 
+script:
+  - tox
+
 sudo: false
+
