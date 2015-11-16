@@ -1,7 +1,9 @@
+from __future__ import unicode_literals
 import unittest
 
 from django.core.management import call_command
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 try:
     from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor
 except ImportError:
@@ -23,11 +25,12 @@ class TestMaatHandler(MaatHandler):
         return []
 
 
+@python_2_unicode_compatible
 class TestModel(models.Model):
     name = models.CharField(max_length=8)
 
-    def __unicode__(self):
-        return unicode(self.name)
+    def __str__(self):
+        return self.name
 
 
 class TestManager(models.Manager):

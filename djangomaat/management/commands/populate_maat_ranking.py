@@ -7,7 +7,7 @@ from djangomaat.register import maat
 try:
     from django.apps import apps
     get_model = apps.get_model
-except:
+except ImportError:
     from django.db.models.loading import get_model
 
 
@@ -36,7 +36,7 @@ class Command(BaseCommand):
         app_label, model_name = bits[0].split('.')
         typologies = None
         if len(bits) > 1:
-            typologies = map(strip, bits[1].split(','))
+            typologies = list(map(strip, bits[1].split(',')))
             if not typologies:
                 raise SyntaxError('Missing typologyes values after colon')
         return app_label, model_name, typologies
