@@ -3,9 +3,12 @@ from __future__ import unicode_literals
 from optparse import make_option
 
 from django.core.management.base import BaseCommand
-from django.db.models.loading import get_model
-
 from djangomaat.register import maat
+try:
+    from django.apps import apps
+    get_model = apps.get_model
+except:
+    from django.db.models.loading import get_model
 
 
 class Command(BaseCommand):
