@@ -13,10 +13,12 @@ from django.contrib.contenttypes.models import ContentType
 from djangomaat.models import MaatRanking
 from djangomaat.exceptions import ManagerDoesNotExist, TypologyNotImplemented
 from djangomaat.settings import FLUSH_BATCH_SIZE
+from django.utils.encoding import python_2_unicode_compatible
+
 
 GETTER_PREFIX = 'get_pk_list_for_'
 
-
+@python_2_unicode_compatible
 class MaatHandler(object):
     """
     Abstract class that manages the creation and the retrieving of ordered
@@ -78,7 +80,7 @@ class MaatHandler(object):
         self.model_class = model_class
         setattr(self.model_class, 'maat', HandlerDescriptor(self))
 
-    def __unicode__(self):
+    def __str__(self):
         ct = self._get_content_type()
         return '{}.{}'.format(ct.app_label, ct.model)
 

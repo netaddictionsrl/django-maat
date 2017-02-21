@@ -3,10 +3,14 @@ import unittest
 from django.core.management import call_command
 from django.db import models
 try:
-    from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor
+    from django.contrib.contenttypes.fields import ReverseGenericManyToOneDescriptor as RGD
 except ImportError:
-    # Django < 1.7
-    from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor
+    try:
+        # Django < 1.9
+        from django.contrib.contenttypes.fields import ReverseGenericRelatedObjectsDescriptor as RGD
+    except ImportError:
+        # Django < 1.7
+        from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor as RGD
 from django.utils.six import StringIO
 
 from djangomaat.register import maat
@@ -45,6 +49,7 @@ class ClientTest(unittest.TestCase):
 
     def tearDown(self):
         self.h = None
+        maat.flush()
 
     def test_default_model_manager(self):
         self.assertEqual(self.h._get_model_manager().__class__, models.Manager)
@@ -80,7 +85,7 @@ class ClientTest(unittest.TestCase):
         self.assertTrue(hasattr(TestModel, 'maat'))
         self.assertEqual(TestModel.maat.__class__, TestMaatHandler)
         self.assertTrue(hasattr(TestModel, 'maat_ranking'))
-        self.assertEqual(TestModel.maat_ranking.__class__, ReverseGenericRelatedObjectsDescriptor)
+        self.assertEqual(TestModel.maat_ranking.__class__, RGD)
         maat.unregister(TestModel)
 
     def test_register_handlers_list(self):
@@ -136,7 +141,7 @@ class ClientTest(unittest.TestCase):
         # Avoid "too many sql variables"
         for i in range(0, 21000, 100):
             TestModel.objects.filter(id__lt=i).delete()
-
+  
         maat.unregister(TestModel)
 
     def test_simulated_flush_and_retrieve(self):

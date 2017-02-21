@@ -92,5 +92,9 @@ class MaatRegister(object):
         for model in model_or_iterable:
             if model in self._registry:
                 del self._registry[model]
+    
+    def flush(self):
+        """ Remove all registered models. """
+        self._registry = {}
 
 maat = MaatRegister()

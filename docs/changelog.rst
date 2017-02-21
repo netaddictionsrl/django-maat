@@ -2,6 +2,17 @@
 Changelog
 =========
 
+Version 1.6
+===========
+* Support for Django 1.9 and 1.10
+* Dropped support for Django < 1.8
+
+
+Version 1.5
+===========
+* populate_maat_ranking command accepts typologies
+
+
 Version 1.4.2
 =============
 * Django 1.8 compatibility

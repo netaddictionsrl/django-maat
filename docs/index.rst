@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 Welcome to Maat's documentation!
-=======================================
+================================
 
 A Django application that optimizes ordered queryset retrieving **when using MySQL**.
 
@@ -26,8 +26,8 @@ Requirements
 
 ========  ======
 Python 2  > 2.7
-Python 3  >= 3.2
-Django    >= 1.5
+Python 3  >= 3.4
+Django    >= 1.8
 ========  ======
 
 Contents
@@ -104,7 +104,7 @@ After that, remember to register your handler as shown on the last line.
    In Django 1.6 the preferred module for this code to live in is
    the ``models.py`` of your application, as it gets imported automatically.
 
-   If you are using Django 1.7 you might want to use
+   If you are using Django > 1.7 you might want to use
    `AppConfig.ready() <https://docs.djangoproject.com/en/1.7/ref/applications/#django.apps.AppConfig.ready>`_ instead.
 
 Now that you are done defining your subclasses, you need to tell Maat to built
