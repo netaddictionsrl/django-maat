@@ -1,8 +1,13 @@
 from __future__ import unicode_literals
 
-from optparse import make_option
-
 from django.core.management.base import BaseCommand
+try:
+    from django.apps import apps
+    get_model = apps.get_model
+except ImportError:
+    # Django < 1.9
+    from django.db.models import get_model
+
 from djangomaat.register import maat
 try:
     from django.apps import apps
@@ -14,12 +19,16 @@ except ImportError:
 class Command(BaseCommand):
     args = '[<app_label.model_name app_label.model_name ...>]'
     help = "Delete the old ranking and store the new ones."
-    option_list = BaseCommand.option_list + (
-        make_option('-s', '--simulate',
+
+    def add_arguments(self, parser):
+        parser.add_argument('models', nargs='*', type=str)
+        
+        parser.add_argument(
+            '--simulate',
             action='store_true',
             dest='simulate',
             default=False,
-            help='Simulation mode'),
+            help='Simulation mode'
         )
 
     def _parse(self, model):
@@ -36,7 +45,7 @@ class Command(BaseCommand):
         app_label, model_name = bits[0].split('.')
         typologies = None
         if len(bits) > 1:
-            typologies = list(map(strip, bits[1].split(',')))
+            typologies = [bit.strip() for bit in bits[1].split(',')]
             if not typologies:
                 raise SyntaxError('Missing typologyes values after colon')
         return app_label, model_name, typologies
@@ -49,6 +58,8 @@ class Command(BaseCommand):
             logger = self.stdout
         else:
             logger = None
+
+        models = models or options.get('models')
 
         if models:
             for model in models:

@@ -1,7 +1,11 @@
 from __future__ import unicode_literals
 
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
+try:
+    from django.contrib.contenttypes.fields import GenericForeignKey
+except ImportError:
+    # Django < 1.9
+    from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -10,7 +14,7 @@ from django.utils.encoding import python_2_unicode_compatible
 class MaatRanking(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField(db_index=True)
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey('content_type', 'object_id')
 
     typology = models.CharField(max_length=255, db_index=True)
     usable = models.BooleanField(default=False)
