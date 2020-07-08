@@ -3,7 +3,20 @@ from __future__ import unicode_literals
 import inspect
 from time import time
 
-from django.utils.encoding import python_2_unicode_compatible
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    # Django > 2
+    def python_2_unicode_compatible(klass):
+        """
+        A decorator that defines __unicode__ and __str__ methods under Python 2.
+        Under Python 3 it does nothing.
+
+        To support Python 2 and 3 with a single code base, define a __str__ method
+        returning text and apply this decorator to the class.
+        """
+        return klass
+        
 from django.contrib.contenttypes.models import ContentType
 try:
     from django.db.transaction import atomic
@@ -13,7 +26,6 @@ except ImportError:
 from djangomaat.models import MaatRanking
 from djangomaat.exceptions import ManagerDoesNotExist, TypologyNotImplemented
 from djangomaat.settings import FLUSH_BATCH_SIZE
-from django.utils.encoding import python_2_unicode_compatible
 
 GETTER_PREFIX = 'get_pk_list_for_'
 

@@ -3,7 +3,21 @@ import unittest
 
 from django.core.management import call_command
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
+
+try:
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    # Django > 2
+    def python_2_unicode_compatible(klass):
+        """
+        A decorator that defines __unicode__ and __str__ methods under Python 2.
+        Under Python 3 it does nothing.
+
+        To support Python 2 and 3 with a single code base, define a __str__ method
+        returning text and apply this decorator to the class.
+        """
+        return klass
+
 try:
     from django.contrib.contenttypes.fields import ReverseGenericManyToOneDescriptor as RGD
 except ImportError:
