@@ -27,7 +27,8 @@ except ImportError:
     except ImportError:
         # Django < 1.7
         from django.contrib.contenttypes.generic import ReverseGenericRelatedObjectsDescriptor as RGD
-from django.utils.six import StringIO
+
+from six import StringIO
 
 from djangomaat.register import maat
 from djangomaat.handlers import MaatHandler
