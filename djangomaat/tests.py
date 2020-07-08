@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
-import unittest
 
+from django.test import TestCase
 from django.core.management import call_command
 from django.db import models
 
@@ -60,7 +60,7 @@ class MockLogger(object):
     def write(self, something):
         pass
 
-class ClientTest(unittest.TestCase):
+class ClientTest(TestCase):
 
     def setUp(self):
         self.h = TestMaatHandler(TestModel)
